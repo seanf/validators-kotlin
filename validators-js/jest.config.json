@@ -1,0 +1,24 @@
+{
+  "collectCoverage": true,
+  "collectCoverageFrom": [
+    "**/validators-js.js"
+  ],
+  "coverageDirectory": "<rootDir>/build/coverage/",
+  "coveragePathIgnorePatterns": [
+    "\\.meta\\.js", "kotlin.*\\.js"
+  ],
+  "coverageReporters": [
+    "cobertura",
+    "lcov",
+    "text"
+  ],
+  "modulePaths": [
+    "<rootDir>/build/node_modules_main"
+  ],
+  "roots": [
+    "build/classes/kotlin/test/",
+    "build/node_modules_main/"
+  ],
+  "testMatch": ["**/*_test.js"],
+  "transform": {}
+}

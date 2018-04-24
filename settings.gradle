@@ -1,0 +1,3 @@
+rootProject.name = 'validators'
+
+include 'validators-jvm', 'validators-js'

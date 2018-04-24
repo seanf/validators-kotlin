@@ -1,0 +1,29 @@
+{
+  "name": "validators",
+  "version": "1.0.0",
+  "description": "Zanata translation validators",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zanata/validators.git"
+  },
+  "keywords": [
+    "L10n",
+    "translation",
+    "validation",
+    "kotlin",
+    "multiplatform"
+  ],
+  "author": "Sean Flanigan",
+  "license": "LGPL-2.1",
+  "bugs": {
+    "url": "https://github.com/zanata/validators/issues"
+  },
+  "homepage": "https://github.com/zanata/validators#readme",
+  "dependencies": {
+    "jest": "^21.2.1"
+  }
+}

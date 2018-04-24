@@ -1,0 +1,99 @@
+// node-related setup/config courtesy of https://github.com/jstuyts/kotlin-multiplatform-recipes/
+
+buildscript {
+    ext.kotlin_version = '1.2.0'
+
+    repositories {
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "com.moowork.gradle:gradle-node-plugin:1.2.0"
+    }
+}
+
+apply plugin: 'kotlin-platform-js'
+apply plugin: 'com.moowork.node'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile "org.jetbrains.kotlin:kotlin-stdlib-js:$kotlin_version"
+    expectedBy project(":")
+    testCompile "org.jetbrains.kotlin:kotlin-test-js:$kotlin_version"
+}
+
+test {
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+}
+
+[compileKotlin2Js, compileTestKotlin2Js]*.configure {
+    kotlinOptions.moduleKind = "umd"
+}
+
+compileKotlin2Js {
+    kotlinOptions.sourceMap = true
+    kotlinOptions.sourceMapEmbedSources = "always"
+}
+
+task populateNodeModules(type: Copy, dependsOn: compileKotlin2Js) {
+    from compileKotlin2Js.destinationDir
+
+    configurations.testCompile.each {
+        from zipTree(it.absolutePath).matching { include '*.js' }
+    }
+
+    // Jest likes to ignore any directory called "node_modules" even when you
+    // tell it not to. See https://github.com/facebook/jest/issues/1995
+    into "${buildDir}/node_modules_main"
+}
+
+node {
+    version = nodeVersion
+    download = true
+}
+
+// TODO send coverage info to codecov.io
+
+task installJest(type: NpmTask) {
+    args = ['install', 'jest@21.2.1']
+}
+task runJest(type: NodeTask, dependsOn: [compileTestKotlin2Js, populateNodeModules, installJest]) {
+    script = file('node_modules/.bin/jest')
+    args = [compileTestKotlin2Js.outputFile]
+}
+test.dependsOn runJest
+
+//task installJasmine(type: NpmTask) {
+//    args = ['install', 'jasmine']
+//}
+//task runJasmine(type: NodeTask, dependsOn: [compileTestKotlin2Js, populateNodeModules, installJasmine]) {
+//    script = file('node_modules/.bin/jasmine')
+//    args = [compileTestKotlin2Js.outputFile]
+//}
+//test.dependsOn runJasmine
+
+//task installMocha(type: NpmTask) {
+//    args = ['install', 'mocha']
+//}
+//task runMocha(type: NodeTask, dependsOn: [compileTestKotlin2Js, populateNodeModules, installMocha]) {
+//    script = file('node_modules/.bin/mocha')
+//    args = [compileTestKotlin2Js.outputFile]
+//}
+//test.dependsOn runMocha
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.kotlin
+}
+
+artifacts {
+    archives sourcesJar
+}
